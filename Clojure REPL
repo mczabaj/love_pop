@@ -1,0 +1,380 @@
+REPL Instructions
+
+Code can be entered at the bottom and executed by pressing shift+enter.
+
+Try it now by typing (+ 1 1) in the bottom section and pressing shift+enter.
+
+Working in another Clojure file and sending forms to the REPL is the most efficient way to work. Use the following key bindings to send code to the REPL. See the settings for more keybindings.
+
+ctrl-alt-, then b
+Execute block. Finds the block of Clojure code your cursor is in and executes that.
+
+ctrl-alt-, s
+Executes the selection. Sends the selected text to the REPL.
+
+You can disable this help text in the settings.
+Atom Ink does not appear to be installed. Install it to get a better REPL experience.
+Starting remote REPL connection on localhost:7002
+Refreshing code...
+:reloading (markdown.common cuerdas.regexp cuerdas.core re-frame.db re-frame.loggers re-frame.registrar re-frame.interceptor re-frame.cofx re-frame.utils re-frame.trace re-frame.subs re-frame.std-interceptors re-frame.events re-frame.router re-frame.fx re-frame.core love-pop.layout love-pop.routes.home love-pop.dev-middleware love-pop.env love-pop.config love-pop.middleware markdown.links markdown.lists markdown.tables markdown.transformers ajax.protocols ajax.util love-pop.handler ajax.url ajax.interceptors ajax.formats ajax.simple ajax.ring ajax.json ajax.transit ajax.easy struct.core love-pop.validation love-pop.core cljs.stacktrace love-pop.figwheel user ajax.core)
+Refresh complete
+(ns love-pop.utils)
+love-pop.utils=>
+nil
+(defn gen-priority []
+  (rand 10))
+love-pop.utils=>
+#'love-pop.utils/gen-priority
+(gen-priority)
+love-pop.utils=>
+9.565814643075395
+(defn gen-priority []
+  (rand-int 10))
+love-pop.utils=>
+#'love-pop.utils/gen-priority
+(gen-priority)
+love-pop.utils=>
+4
+(gen-priority)
+love-pop.utils=>
+1
+(gen-priority)
+love-pop.utils=>
+5
+(gen-priority)
+love-pop.utils=>
+1
+(gen-priority)
+love-pop.utils=>
+6
+(gen-priority)
+love-pop.utils=>
+8
+(gen-priority)
+love-pop.utils=>
+9
+(gen-priority)
+love-pop.utils=>
+5
+(gen-priority)
+love-pop.utils=>
+4
+(gen-priority)
+love-pop.utils=>
+5
+(def QUANTITIES [10 25 50 75 100 200])
+love-pop.utils=>
+#'love-pop.utils/QUANTITIES
+(defn gen-quantity []
+  (rand-nth QUANTITIES))
+love-pop.utils=>
+#'love-pop.utils/gen-quantity
+(gen-quantity)
+love-pop.utils=>
+25
+(gen-quantity)
+love-pop.utils=>
+50
+(gen-quantity)
+love-pop.utils=>
+100
+(gen-quantity)
+love-pop.utils=>
+75
+(def QUANTITIES [10 25 50 75 100 200])
+love-pop.utils=>
+#'love-pop.utils/QUANTITIES
+(defn gen-card-id []
+  (rand-nth CARD_IDS))
+love-pop.utils=>
+#'love-pop.utils/gen-card-id
+(gen-card-id)
+love-pop.utils=>
+200
+(gen-card-id)
+love-pop.utils=>
+110
+(gen-card-id)
+love-pop.utils=>
+110
+(gen-card-id)
+love-pop.utils=>
+200
+(+ 1 (rand-int 5))
+love-pop.utils=>
+4
+(+ 1 (rand-int 5))
+love-pop.utils=>
+5
+(+ 1 (rand-int 5))
+love-pop.utils=>
+3
+(+ 1 (rand-int 5))
+love-pop.utils=>
+3
+(+ 1 (rand-int 5))
+love-pop.utils=>
+5
+(+ 1 (rand-int 5))
+love-pop.utils=>
+5
+(+ 1 (rand-int 5))
+love-pop.utils=>
+4
+(+ 1 (rand-int 5))
+love-pop.utils=>
+5
+(+ 1 (rand-int 5))
+love-pop.utils=>
+3
+(+ 1 (rand-int 5))
+love-pop.utils=>
+4
+(+ 1 (rand-int 5))
+love-pop.utils=>
+3
+(+ 1 (rand-int 5))
+love-pop.utils=>
+3
+(+ 1 (rand-int 5))
+love-pop.utils=>
+2
+(+ 1 (rand-int 5))
+love-pop.utils=>
+1
+(+ 1 (rand-int 5))
+love-pop.utils=>
+5
+(defn gen-uuid [] 
+  (str (java.util.UUID/randomUUID)))
+love-pop.utils=>
+#'love-pop.utils/gen-uuid
+(gen-uuid)
+love-pop.utils=>
+"42335ea0-1f81-4554-9098-eff8e633f855"
+(defn gen-order []
+  ;; minimum order has 1 row
+  (let [rows (+ 1 (rand-int 5))
+        order {:order {}}]
+    (assoc-in order [:order :id] (gen-uuid))))
+love-pop.utils=>
+#'love-pop.utils/gen-order
+(gen-order)
+love-pop.utils=>
+{:order {:id "bc00ad4f-53ae-42d2-982c-07ccec2a5125"}}
+(defn gen-order []
+  ;; minimum order has 1 row
+  (let [rows (+ 1 (rand-int 5))
+        order {:order {}}]
+    (assoc-in order [:order :id] (gen-uuid))
+    (assoc-in order [:order :rows] {})))
+love-pop.utils=>
+#'love-pop.utils/gen-order
+(gen-order)
+love-pop.utils=>
+{:order {:rows {}}}
+(gen-order)
+love-pop.utils=>
+{:order {:rows {}}}
+(defn gen-order []
+  ;; minimum order has 1 row
+  (let [rows (+ 1 (rand-int 5))
+        order {:order {}}]
+    (-> order 
+      (assoc-in [:order :id] (gen-uuid))
+      (assoc-in [:order :rows] {}))))
+love-pop.utils=>
+#'love-pop.utils/gen-order
+(gen-order)
+love-pop.utils=>
+{:order {:id "caa2d9a8-63b4-4d25-98c3-b2784a09dc47", :rows {}}}
+(defn gen-row []
+  {:card_id 1 :quantity 50 :priority 2})
+love-pop.utils=>
+#'love-pop.utils/gen-row
+(gen-row)
+love-pop.utils=>
+{:card_id 1, :quantity 50, :priority 2}
+(defn gen-rows []
+  (let [rows (+ 1 (rand-int 5))]
+    (dotimes [n rows] gen-row)))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+nil
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows {}]
+    (dotimes [n cnt] (assoc rows (gen-row)))))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+ArityException Wrong number of args (2) passed to: core/assoc--4371  clojure.lang.AFn.throwArity (AFn.java:429)
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows []]
+    (dotimes [n cnt] (conj! rows (gen-row)))))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+ClassCastException clojure.lang.PersistentVector cannot be cast to clojure.lang.ITransientCollection  clojure.core/conj! (core.clj:3249)
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows []]
+    (dotimes [n cnt]
+      (conj! rows gen-row))))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+ClassCastException clojure.lang.PersistentVector cannot be cast to clojure.lang.ITransientCollection  clojure.core/conj! (core.clj:3249)
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows '[]]
+    (dotimes [n cnt]
+      (conj! rows gen-row))))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+ClassCastException clojure.lang.PersistentVector cannot be cast to clojure.lang.ITransientCollection  clojure.core/conj! (core.clj:3249)
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows (transient [])]
+    (dotimes [n cnt]
+      (conj! rows (gen-row)))))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+nil
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows (transient [])]
+    (dotimes [n cnt]
+      (conj! rows (gen-row)))
+    rows))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+#object[clojure.lang.PersistentVector$TransientVector 0x1fa604a6 "clojure.lang.PersistentVector$TransientVector@1fa604a6"]
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))
+        rows (transient [])]
+    (dotimes [n cnt]
+      (conj! rows (gen-row)))
+    (str rows)))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+"clojure.lang.PersistentVector$TransientVector@22500dee"
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))]
+    (for [x (range 1 cnt) 
+          :let [row (gen-row)]]
+      [row])))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+([{:card_id 1, :quantity 50, :priority 2}])
+(gen-rows)
+love-pop.utils=>
+()
+(gen-rows)
+love-pop.utils=>
+()
+(gen-rows)
+love-pop.utils=>
+([{:card_id 1, :quantity 50, :priority 2}] [{:card_id 1, :quantity 50, :priority 2}])
+(defn gen-rows []
+  (let [cnt  (+ 1 (rand-int 5))]
+    (for [x (range 1 cnt)
+          :let [row (gen-row)]]
+      row)))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+()
+(defn gen-rows []
+  (let [cnt  (+ 2 (rand-int 5))]
+    (for [x (range 1 cnt)
+          :let [row (gen-row)]]
+      row)))
+love-pop.utils=>
+#'love-pop.utils/gen-rows
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2})
+(gen-rows)
+love-pop.utils=>
+({:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2} {:card_id 1, :quantity 50, :priority 2})
+(defn gen-quantity []
+  (rand-nth QUANTITIES))
+love-pop.utils=>
+#'love-pop.utils/gen-quantity
+(defn gen-card-id []
+  (rand-nth CARD_IDS))
+love-pop.utils=>
+#'love-pop.utils/gen-card-id
+(defn gen-priority []
+  (rand-int 10))
+love-pop.utils=>
+#'love-pop.utils/gen-priority
+(defn gen-row []
+  {:card_id (gen-card-id) 
+   :quantity (gen-quantity)
+   :priority (gen-priority)})
+love-pop.utils=>
+#'love-pop.utils/gen-row
+(defn gen-order []
+  ;; minimum order has 1 row
+  (let [order {:order {}}
+        rows  (gen-rows)]
+    (-> order
+      (assoc-in [:order :id] (gen-uuid))
+      (assoc-in [:order :rows] rows))))
+love-pop.utils=>
+#'love-pop.utils/gen-order
+(gen-order)
+love-pop.utils=>
+{:order {:id "21ca8f90-f137-45ba-884d-dcaaf54f0fa7", :rows ({:card_id 220, :quantity 75, :priority 1} {:card_id 220, :quantity 200, :priority 6} {:card_id 220, :quantity 100, :priority 3} {:card_id 210, :quantity 25, :priority 9})}}
+--------------------
