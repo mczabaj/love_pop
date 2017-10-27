@@ -1,7 +1,7 @@
 (ns love-pop.events
   (:require [love-pop.db :as db]
             [love-pop.utils :as utils]
-            [re-frame.core :refer [dispatch reg-event-db]]))
+            [re-frame.core :refer [dispatch reg-event-db reg-event-fx]]))
 
 ;; dispatchers and default events
 
@@ -43,6 +43,9 @@
 (def new-state (partial change-state
                         state-transitions
                         [:orders :ui/state]))
+(defn init-state [{:keys [db]} _]
+  (println "init stated")
+  {:db (assoc-in db [:workstations] (utils/set-workstations))})
 
 (defn add-order
   [db _]
@@ -50,4 +53,5 @@
     (assoc-in [:orders :list] (utils/gen-order))
     (new-state :order-added)))
 
+(reg-event-fx :orders/init-state init-state)
 (reg-event-db :orders/add-order add-order)

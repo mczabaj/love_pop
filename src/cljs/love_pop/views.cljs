@@ -31,6 +31,7 @@
 
 
 (defn orders-page []
+  (rf/dispatch [:orders/init-state])
   [:div.container
     [:h3 "Click Add Order to start the simulation."]
     [:p "You can click Add Order again to generate additional orders."]

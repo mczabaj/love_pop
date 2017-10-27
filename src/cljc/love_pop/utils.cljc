@@ -46,3 +46,25 @@
     (-> {}
       (assoc-in [:order :id] (gen-uuid))
       (assoc-in [:order :rows] (vec rows)))))
+
+
+(defn gen-time-to-complete []
+  ;; rand-int includes 0, so, min time to complte is going to 2, max 10
+  (+ 2 (rand-int 8)))
+(defn gen-num-workstations []
+  ;; same here, minimum workstations is 1, max 5
+  (+ 1 (rand-int 4)))
+
+(defn set-workstations []
+   {:select-paper           {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}
+    :lazer-cut              {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}
+    :assemble-sculpture     {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}
+    :assemble-card          {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}
+    :pack-order             {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}
+    :mail-order             {:count (gen-num-workstations)
+                             :complete-time (gen-time-to-complete)}})
