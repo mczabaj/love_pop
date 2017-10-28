@@ -1,5 +1,7 @@
 (ns love-pop.utils)
 
+;; Creating Orders
+
 (def sample-order {:order {:id "uuid"
                            :rows [{:card_id 110
                                    :quantity 50
@@ -37,7 +39,7 @@
 (defn gen-rows []
   ;; dont want empty orders! add 1 to the random number of rows (rand-int includes 0)
   (let [cnt  (+ 1 (rand-int 5))]
-    (for [x (range 1 cnt)
+    (for [x (range 0 cnt)
           :let [row (gen-row)]]
       row)))
 
@@ -47,6 +49,7 @@
       (assoc-in [:order :id] (gen-uuid))
       (assoc-in [:order :rows] (vec rows)))))
 
+;; Workstation Stuff
 
 (defn gen-time-to-complete []
   ;; rand-int includes 0, so, min time to complte is going to 2, max 10
@@ -54,17 +57,15 @@
 (defn gen-num-workstations []
   ;; same here, minimum workstations is 1, max 5
   (+ 1 (rand-int 4)))
+(defn gen-workstation []
+  {:count (gen-num-workstations)
+   :complete-time (gen-time-to-complete)
+   :waiting 0})
 
 (defn set-workstations []
-   {:select-paper           {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}
-    :lazer-cut              {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}
-    :assemble-sculpture     {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}
-    :assemble-card          {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}
-    :pack-order             {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}
-    :mail-order             {:count (gen-num-workstations)
-                             :complete-time (gen-time-to-complete)}})
+   {:select-paper       (gen-workstation)
+    :lazer-cut          (gen-workstation)
+    :assemble-sculpture (gen-workstation)
+    :assemble-card      (gen-workstation)
+    :pack-order         (gen-workstation)
+    :mail-order         (gen-workstation)})

@@ -25,15 +25,41 @@
                            :type "button"
                            :on-click #(rf/dispatch [:orders/add-order])}])
 
-(defn status-row [])
+(defn workstation [name-kw]
+  [:div.col-md-2
+    [:p (name name-kw)]
+    [:span
+      [:p (str "Cards Waiting: " @(rf/subscribe [(keyword "workstations" (str (name name-kw) "-waiting"))]))]
+      [:p (str "Workstations: " @(rf/subscribe [(keyword "workstations" (str (name name-kw) "-count"))]))]
+      [:p (str "Time to Complete: "  @(rf/subscribe [(keyword "workstations" (str (name name-kw) "-complete-time"))]))]]])
 
-(defn status-section [])
+(defn status-row []
+  [:div.row
+    [workstation :select-paper]
+    [workstation :lazer-cut]
+    [workstation :assemble-sculpture]
+    [workstation :assemble-card]
+    [workstation :pack-order]
+    [workstation :mail-order]])
 
+(defn total-section []
+  [:div.row
+    [:span
+      [:p "Total Orders Processed"]
+      [:p @(rf/subscribe [:orders/total-orders])]]
+    [:span
+      [:p "Total Cards Ordered and Created"]
+      [:p @(rf/subscribe [:orders/total-cards])]]])
 
 (defn orders-page []
   (rf/dispatch [:orders/init-state])
-  [:div.container
-    [:h3 "Click Add Order to start the simulation."]
-    [:p "You can click Add Order again to generate additional orders."]
-    [add-button]
-    [:div (str @(rf/subscribe [:orders/list]))]])
+  (fn []
+    [:div.container
+      [:h3 "Click Add Order to start the simulation."]
+      [:p "You can click Add Order again to generate additional orders."]
+      [add-button] [:span @(rf/subscribe [:order/state])]
+      [:span
+        [:p "Orders: " @(rf/subscribe [:orders/list])]
+        [:p "Order rows:  " @(rf/subscribe [:orders/rows])]]
+      [status-row]
+      [total-section]]))

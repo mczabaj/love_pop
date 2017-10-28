@@ -1,5 +1,6 @@
 (ns love-pop.events
   (:require [love-pop.db :as db]
+            [love-pop.processing :as p]
             [love-pop.utils :as utils]
             [re-frame.core :refer [dispatch reg-event-db reg-event-fx]]))
 
@@ -19,9 +20,8 @@
 ;; current state -> event -> new state
 (def state-transitions
   {;; start state
-   :nil                {:order-added   :order-started}
+   nil                 {:order-added   :select-paper}
    ;; intermediate states
-   :order-started      {:step-complete :select-paper}
    :select-paper       {:step-complete :lazer-cut}
    :lazer-cut          {:step-complete :assemble-sculpture}
    :assemble-sculpture {:step-complete :assemble-card}
@@ -43,15 +43,45 @@
 (def new-state (partial change-state
                         state-transitions
                         [:orders :ui/state]))
+
+(defn step-complete [db _]
+  (new-state db :step-complete))
+
 (defn init-state [{:keys [db]} _]
   (println "init stated")
-  {:db (assoc-in db [:workstations] (utils/set-workstations))})
+  {:db (-> db
+         (assoc-in [:orders :ui/state] nil)
+         (assoc-in [:orders :completed] 0)
+         (assoc-in [:orders :cards-completed] 0)
+         (assoc-in [:workstations] (utils/set-workstations)))})
 
-(defn add-order
-  [db _]
-  (-> db
-    (assoc-in [:orders :list] (utils/gen-order))
-    (new-state :order-added)))
+(defn add-order [{:keys [db]} _]
+  (let [order (utils/gen-order)]
+    {:db (-> db
+           (assoc-in [:orders :list] order)
+           (new-state :order-added))
+     :dispatch [:orders/select-paper order]}))
+
+(defn select-paper [{:keys [db]} [_ order]]
+  (let [rows  (get-in order [:order :rows])
+        tot-q (apply + (map (fn [r] (:quantity r)) rows))]
+    {:db (assoc-in db [:workstations :select-paper :waiting] tot-q)
+     :dispatch [:process/select-paper tot-q]}))
+
+(defn process [{:keys [db]} [_ q]]
+  (println "made it to process with: " q " things to process."))
+
 
 (reg-event-fx :orders/init-state init-state)
-(reg-event-db :orders/add-order add-order)
+(reg-event-fx :orders/add-order add-order)
+
+(reg-event-db :orders/step-complete step-complete)
+
+(reg-event-fx :orders/select-paper select-paper)
+(reg-event-fx :process/select-paper process)
+; (reg-event-fx :orders/lazer-cut lazer-cut)
+; (reg-event-fx :orders/assemble-sculpture assemble-sculpture)
+; (reg-event-fx :orders/assemble-card assemble-card)
+; (reg-event-fx :orders/pack-order pack-order)
+; (reg-event-fx :orders/mail-order mail-order)
+; (reg-event-fx :orders/finished finish)

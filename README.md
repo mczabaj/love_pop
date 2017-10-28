@@ -6,7 +6,7 @@ the storeroom to mailing the order out.
 
 ## Running
 
-Go to the orders page of the app and click the `Run` button.
+Go to the orders page of the app and click the `Add Order` button.
 
 That's it.
 
