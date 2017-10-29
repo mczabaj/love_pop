@@ -27,7 +27,7 @@
 
 (defn workstation [name-kw]
   [:div.col-md-2
-    [:p (name name-kw)]
+    [:p [:strong (name name-kw)]]
     [:span
       [:p (str "Cards Waiting: " @(rf/subscribe [(keyword "workstations" (str (name name-kw) "-waiting"))]))]
       [:p (str "Workstations: " @(rf/subscribe [(keyword "workstations" (str (name name-kw) "-count"))]))]

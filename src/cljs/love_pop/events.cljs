@@ -62,14 +62,12 @@
            (new-state :order-added))
      :dispatch [:orders/select-paper order]}))
 
-(defn select-paper [{:keys [db]} [_ order]]
+(defn select-paper [db [_ order]]
   (let [rows  (get-in order [:order :rows])
         tot-q (apply + (map (fn [r] (:quantity r)) rows))]
-    {:db (assoc-in db [:workstations :select-paper :waiting] tot-q)
-     :dispatch [:process/select-paper tot-q]}))
+    (assoc-in db [:workstations :select-paper :waiting] tot-q)))
 
-(defn process [{:keys [db]} [_ q]]
-  (println "made it to process with: " q " things to process."))
+(defn process [db ws])
 
 
 (reg-event-fx :orders/init-state init-state)
@@ -77,8 +75,9 @@
 
 (reg-event-db :orders/step-complete step-complete)
 
-(reg-event-fx :orders/select-paper select-paper)
-(reg-event-fx :process/select-paper process)
+(reg-event-db :orders/select-paper select-paper)
+
+(reg-event-db :process process)
 ; (reg-event-fx :orders/lazer-cut lazer-cut)
 ; (reg-event-fx :orders/assemble-sculpture assemble-sculpture)
 ; (reg-event-fx :orders/assemble-card assemble-card)
