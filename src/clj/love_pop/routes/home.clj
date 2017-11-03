@@ -12,4 +12,10 @@
        (home-page))
   (GET "/docs" []
        (-> (response/ok (-> "README.md" slurp))
-           (response/header "Content-Type" "text/plain; charset=utf-8"))))
+           (response/header "Content-Type" "text/plain; charset=utf-8")))
+
+  (GET "/sleep" [:as request]
+       (let [params (:params request)
+             s      (:seconds params)]
+         (Thread/sleep (* 1000 (Integer/parseInt s)))
+         (response/ok s))))

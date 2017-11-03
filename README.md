@@ -6,6 +6,12 @@ the storeroom to mailing the order out.
 
 ## Running
 
+Execute the packaged jar file with
+
+`java -jar love_pop.jar`
+
+Navigate to `localhost:3000` in your browser
+
 Go to the orders page of the app and click the `Add Order` button.
 
 That's it.
@@ -30,6 +36,8 @@ To start a web server for the application, run:
 In an new terminal, run:
 
 `lein figwheel`
+
+Then, go to `localhost:3000` in your browser of choice (cough cough Chrome cough)
 
 ## License
 

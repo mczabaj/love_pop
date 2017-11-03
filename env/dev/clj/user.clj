@@ -1,5 +1,5 @@
 (ns user
-  (:require 
+  (:require
             [mount.core :as mount]
             [love-pop.figwheel :refer [start-fw stop-fw cljs]]
             love-pop.core))
@@ -13,5 +13,3 @@
 (defn restart []
   (stop)
   (start))
-
-

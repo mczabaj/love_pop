@@ -20,10 +20,10 @@
 
 ;; Order page View components
 
-(defn add-button []
-  [:input.btn.btn-primary {:value "Add Order"
+(defn add-button [text event-kw]
+  [:input.btn.btn-primary {:value text
                            :type "button"
-                           :on-click #(rf/dispatch [:orders/add-order])}])
+                           :on-click #(rf/dispatch [event-kw])}])
 
 (defn workstation [name-kw]
   [:div.col-md-2
@@ -39,8 +39,7 @@
     [workstation :lazer-cut]
     [workstation :assemble-sculpture]
     [workstation :assemble-card]
-    [workstation :pack-order]
-    [workstation :mail-order]])
+    [workstation :pack-mail-order]])
 
 (defn total-section []
   [:div.row
@@ -55,9 +54,10 @@
   (rf/dispatch [:orders/init-state])
   (fn []
     [:div.container
+      ;; test timeout [:h2 @(rf/subscribe [:test/counter])]
       [:h3 "Click Add Order to start the simulation."]
       [:p "You can click Add Order again to generate additional orders."]
-      [add-button] [:span @(rf/subscribe [:order/state])]
+      [add-button "Add Order" :orders/add-order]
       [:span
         [:p "Orders: " @(rf/subscribe [:orders/list])]
         [:p "Order rows:  " @(rf/subscribe [:orders/rows])]]

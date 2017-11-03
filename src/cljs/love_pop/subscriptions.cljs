@@ -34,8 +34,8 @@
     (get-in db [:orders :cards-completed])))
 
 (def workstations [:select-paper :lazer-cut :assemble-sculpture
-                   :assemble-card :pack-order :mail-order])
-
+                   :assemble-card :pack-mail-order])
+                   
 (doseq [ws workstations]
   (reg-sub (keyword "workstations" (str (name ws) "-count"))
     (fn [db _] (get-in db [:workstations ws :count]))))
@@ -48,5 +48,6 @@
   (reg-sub (keyword "workstations" (str (name ws) "-waiting"))
     (fn [db _] (get-in db [:workstations ws :waiting] 0))))
 
-(reg-sub :order/state
-  (fn [db _] (get-in db [:orders :ui/state])))
+;;test timeout
+(reg-sub :test/counter
+  (fn [db _] (get-in db [:test :counter] 0)))
