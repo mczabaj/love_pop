@@ -31,7 +31,7 @@
    ;; terminal state
    :finished            nil})
 
-(defn change-state [state-map state-path db transition]
+(defn change-state [state-map db state-path transition]
   (if transition
     (let [current-state (get-in db state-path)
           new-state (get-in state-map [current-state transition])]
@@ -41,38 +41,56 @@
     (.log js/console "new-state cannot process nil transition")))
 
 (def new-state (partial change-state
-                        state-transitions
-                        [:orders :ui/state]))
+                        state-transitions))
+                        ;;[:orders <the id> :process-state]
 
 (defn init-state [{:keys [db]} _]
   (println "init stated")
   {:db (-> db
-         (assoc-in [:orders :completed] 0)
-         (assoc-in [:orders :cards-completed] 0)
-         (assoc-in [:workstations] (utils/set-workstations)))})
+           (assoc-in [:orders :completed] 0)
+           (assoc-in [:orders :cards-completed] 0)
+           (assoc-in [:workstations] (utils/set-workstations)))})
 
 (defn- quantity-in-order [rows]
   (apply + (map (fn [r] (:quantity r)) rows)))
 
-(defn add-order [{:keys [db]} _]
+(defn add-order [db _]
   (let [order (utils/gen-order)
-        current-orders (get-in db [:orders :list])
-        rows  (get-in order [:order :rows])
-        total-in-q (quantity-in-order rows)]
-    {:db (-> db
-           (assoc-in [:orders :list] (conj current-orders order))
-           (assoc-in [:workstations :select-paper :waiting] total-in-q)
-           (new-state :order-added))
-     :dispatch [:workstation/select-paper]}))
-     ;; Test sleep call :dispatch [:test/timer]}))
+        current-orders (get-in db [:orders :backlog])]
+    (assoc-in db [:orders :backlog] (conj current-orders order))))
+
+(defn update-order-state [db id new-state]
+  (println "the processing order " (get-in db [:orders :backlog id]))
+  (assoc-in db [:orders :backlog id :process-state] new-state))
+
+(defn start [{:keys [db]} _]
+  (println "backlog " (get-in db [:orders :backlog]))
+  (let [orders      (get-in db [:orders :backlog])
+        first-order (if (list? orders) (last orders) (last (list orders)))
+        id          (do (println "first order" first-order) (ffirst first-order))
+        rows        (do (println "first id" id) (get-in first-order [id :rows]))
+        total-in-q  (quantity-in-order rows)]
+    (if (= 0 (count orders))
+      {:db (assoc-in db [:orders :started] false)}
+      {:db (-> db
+               (assoc-in [:orders :started] true)
+               (assoc-in [:workstations :select-paper :waiting] total-in-q)
+               (assoc-in [:workstations :select-paper :processing] id))
+       :dispatch [:workstation/select-paper]})))
+
+(defn order-to-process [db workstation]
+  (let [orders         (get-in db [:orders :backlog])
+        current-order  (filter (fn [[k,v]] (= workstation (get-in v [:process-state]))))]
+    db))
 
 (defn process-station [db current-event-kw next-event-kw]
-  (let [rows-to-process (get-in db [:orders :list :order :rows])
-        items-to-do     (get-in db [:workstations current-event-kw :waiting])
-        time-to-do      (get-in db [:workstations current-event-kw :complete-time])
-        batch-size      (get-in db [:workstations current-event-kw :count])
-        new-count       (- items-to-do batch-size)]
-    (println "event:" (name current-event-kw))
+  (let [id               (get-in db [:workstations current-event-kw :processing])
+        orders           (into {} (get-in db [:orders :backlog]))
+        rows-to-process  (get-in orders [id :rows])
+        items-to-do      (get-in db [:workstations current-event-kw :waiting])
+        time-to-do       (get-in db [:workstations current-event-kw :complete-time])
+        batch-size       (get-in db [:workstations current-event-kw :count])
+        new-count        (- items-to-do batch-size)]
     (if (> items-to-do 0)
       (do (println "still here " items-to-do)
           (lp-ajax/curl (assoc-in db [:workstations current-event-kw :waiting] (if (pos? new-count) new-count 0)) ;;new db
@@ -80,47 +98,63 @@
                         {:seconds time-to-do} ;;params
                         (keyword "workstation" (name current-event-kw)) ;;success-event
                         (keyword "workstation" (name current-event-kw)) ;;fail-event
-                        15000 ;;timeout
+                        11000 ;;timeout
                         :get))
-      ;;else
-      (do (println "moving on to " (name next-event-kw))
+      ;; else
+      (do (println "moving on to" (name next-event-kw))
           ;; dispatch to step-complete to update total-section
-          {:db (assoc-in db [:workstations (keyword (name next-event-kw)) :waiting] (quantity-in-order rows-to-process))
+          {:db (if (= next-event-kw :orders/finished)
+                 db
+                 (-> db
+                     (assoc-in [:workstations (keyword (name next-event-kw)) :waiting] (quantity-in-order rows-to-process))
+                     (assoc-in [:workstations (keyword (name next-event-kw)) :processing] id)
+                     (dissoc   [:workstations current-event-kw] :processing)))
            :dispatch [next-event-kw]}))))
 
 (defn select-paper [{:keys [db]} [event _]]
+  (println "selecting paper")
   (process-station db (keyword (name event)) :workstation/lazer-cut))
 
 (defn lazer-cut [{:keys [db]} [event _]]
+  (println "lazer cutting")
   (process-station db (keyword (name event)) :workstation/assemble-sculpture))
 
 (defn assemble-sculpture [{:keys [db]} [event _]]
+  (println "assembling sculpture")
   (process-station db (keyword (name event)) :workstation/assemble-card))
 
 (defn assemble-card [{:keys [db]} [event _]]
+  (println "assembling card")
   (process-station db (keyword (name event)) :workstation/pack-mail-order))
 
 (defn pack-mail-order [{:keys [db]} [event _]]
+  (println "packing and mailing")
   (process-station db (keyword (name event)) :orders/finished))
 
-(defn finished [db _]
-  (let [rows      (get-in db [:orders :list :order :rows])
+(defn finished [{:keys [db]} _]
+  (let [id        (get-in db [:workstations :pack-mail-order :processing])
+        orders    (into {} (get-in db [:orders :backlog]))
+        rows      (get-in orders [id :rows])
         completed (get-in db [:orders :completed])
-        cards     (get-in db [:orders :cards-completed])]
-    (-> db (assoc-in [:orders :completed] (+ completed (count rows)))
-           (assoc-in [:orders :cards-completed] (+ cards (quantity-in-order rows))))))
+        cards     (get-in db [:orders :cards-completed])
+        new-orders (dissoc orders id)]
+    {:db (-> db
+                      (assoc-in [:orders :completed] (+ completed (count rows)))
+                      (assoc-in [:orders :cards-completed] (+ cards (quantity-in-order rows)))
+                      (assoc-in [:orders :backlog] new-orders))
+     :dispatch [:orders/start]}))
 
 (reg-event-fx :orders/init-state init-state)
-(reg-event-fx :orders/add-order add-order)
+(reg-event-db :orders/add-order add-order)
+(reg-event-fx :orders/start start)
 
 (reg-event-fx :workstation/select-paper select-paper)
-
 (reg-event-fx :workstation/lazer-cut lazer-cut)
 (reg-event-fx :workstation/assemble-sculpture assemble-sculpture)
 (reg-event-fx :workstation/assemble-card assemble-card)
 (reg-event-fx :workstation/pack-mail-order pack-mail-order)
 
-(reg-event-db :orders/finished finished)
+(reg-event-fx :orders/finished finished)
 
 
 

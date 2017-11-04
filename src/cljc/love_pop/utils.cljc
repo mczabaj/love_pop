@@ -2,16 +2,16 @@
 
 ;; Creating Orders
 
-(def sample-order {:order {:id "uuid"
-                           :rows [{:card_id 110
-                                   :quantity 50
-                                   :priority 3}
-                                  {:card_id 200
-                                   :quantity 100
-                                   :priority 6}
-                                  {:card_id 220
-                                   :quantity 10
-                                   :priority 1}]}})
+(def sample-order {:uuid {:process-state nil
+                          :rows [{:card_id 110
+                                  :quantity 50
+                                  :priority 3}
+                                 {:card_id 200
+                                  :quantity 100
+                                  :priority 6}
+                                 {:card_id 220
+                                  :quantity 10
+                                  :priority 1}]}})
 
 (def CARD_IDS [100 110 120 200 210 220])
 (def QUANTITIES [10 25 50])
@@ -41,11 +41,11 @@
       row)))
 
 (defn gen-order []
-  (let [rows  (gen-rows)]
-    (-> {}
-      (assoc-in [:order :process-state] nil)
-      (assoc-in [:order :id] (str (gen-uuid)))
-      (assoc-in [:order :rows] (vec rows)))))
+  (let [rows (gen-rows)
+        id   (keyword (str (gen-uuid)))]
+    (-> id {}
+        (assoc-in [id :process-state] nil)
+        (assoc-in [id :rows] (vec rows)))))
 
 ;; Workstation Stuff
 

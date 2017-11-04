@@ -10,20 +10,14 @@
 (reg-sub :docs
   (fn [db _] (:docs db)))
 
-(reg-sub :orders/simulation-started?
-  (fn [db _] (get-in db [:orders :sim-started])))
-
-(reg-sub :orders/list
+(reg-sub :orders/started
   (fn [db _]
-    (let [orders (get-in db [:orders :list] nil)]
+    (get-in db [:orders :started] false)))
+
+(reg-sub :orders/backlog
+  (fn [db _]
+    (let [orders (into {} (get-in db [:orders :backlog]))]
       (if (nil? orders) "No Orders" (str orders)))))
-
-(reg-sub :orders/rows
-  (fn [db _]
-    (let [rows (get-in db [:orders :list :order :rows] "No Rows")]
-      (if (= "No Rows" rows)
-        rows
-        (sort-by :priority < rows)))))
 
 (reg-sub :orders/total-orders
   (fn [db _]
@@ -35,7 +29,7 @@
 
 (def workstations [:select-paper :lazer-cut :assemble-sculpture
                    :assemble-card :pack-mail-order])
-                   
+
 (doseq [ws workstations]
   (reg-sub (keyword "workstations" (str (name ws) "-count"))
     (fn [db _] (get-in db [:workstations ws :count]))))

@@ -58,8 +58,8 @@
       [:h3 "Click Add Order to start the simulation."]
       [:p "You can click Add Order again to generate additional orders."]
       [add-button "Add Order" :orders/add-order]
+      (if (not @(rf/subscribe [:orders/started])) [add-button "Start Processing" :orders/start])
       [:span
-        [:p "Orders: " @(rf/subscribe [:orders/list])]
-        [:p "Order rows:  " @(rf/subscribe [:orders/rows])]]
+        [:p "Orders: " @(rf/subscribe [:orders/backlog])]]
       [status-row]
       [total-section]]))
