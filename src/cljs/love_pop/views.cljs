@@ -44,7 +44,7 @@
 (defn total-section []
   [:div.row
     [:span
-      [:p "Total Orders Processed"]
+      [:p "Total Orders' Rows Processed"]
       [:p @(rf/subscribe [:orders/total-orders])]]
     [:span
       [:p "Total Cards Ordered and Created"]

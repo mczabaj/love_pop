@@ -14,7 +14,7 @@
                                   :priority 1}]}})
 
 (def CARD_IDS [100 110 120 200 210 220])
-(def QUANTITIES [10 25 50])
+(def QUANTITIES [10 20 30])
 
 (defn gen-uuid []
   (random-uuid))
@@ -35,7 +35,7 @@
 
 (defn gen-rows []
   ;; dont want empty orders! add 1 to the random number of rows (rand-int includes 0)
-  (let [cnt  (+ 1 (rand-int 5))]
+  (let [cnt  (+ 1 (rand-int 3))]
     (for [x (range 0 cnt)
           :let [row (gen-row)]]
       row)))

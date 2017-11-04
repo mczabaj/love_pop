@@ -139,9 +139,9 @@
         cards     (get-in db [:orders :cards-completed])
         new-orders (dissoc orders id)]
     {:db (-> db
-                      (assoc-in [:orders :completed] (+ completed (count rows)))
-                      (assoc-in [:orders :cards-completed] (+ cards (quantity-in-order rows)))
-                      (assoc-in [:orders :backlog] new-orders))
+             (assoc-in [:orders :completed] (+ completed (count rows)))
+             (assoc-in [:orders :cards-completed] (+ cards (quantity-in-order rows)))
+             (assoc-in [:orders :backlog] new-orders))
      :dispatch [:orders/start]}))
 
 (reg-event-fx :orders/init-state init-state)
